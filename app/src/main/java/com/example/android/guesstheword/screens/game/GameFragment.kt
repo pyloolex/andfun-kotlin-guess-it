@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import timber.log.Timber
 
 /**
  * Fragment where the game is played
@@ -53,11 +54,18 @@ class GameFragment : Fragment() {
                 false
         )
 
-        // TODO (04) Create and initialize a GameViewModel, using ViewModelProvider; Add a log
-        // statement
-
-        resetList()
-        nextWord()
+        if (savedInstanceState != null)
+        {
+            this.word = savedInstanceState.getString("word")!!
+            this.score = savedInstanceState.getInt("score")
+            this.wordList =
+                savedInstanceState.getStringArrayList("list")!!.toMutableList()
+        }
+        else
+        {
+            resetList()
+            nextWord()
+        }
 
         binding.correctButton.setOnClickListener { onCorrect() }
         binding.skipButton.setOnClickListener { onSkip() }
@@ -76,23 +84,7 @@ class GameFragment : Fragment() {
                 "hospital",
                 "basketball",
                 "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
+                "change"
         )
         wordList.shuffle()
     }
@@ -101,8 +93,11 @@ class GameFragment : Fragment() {
      * Called when the game is finished
      */
     private fun gameFinished() {
+        Timber.i("jj here 1")
         val action = GameFragmentDirections.actionGameToScore(score)
+        Timber.i("jj here 2")
         findNavController(this).navigate(action)
+        Timber.i("jj here 3")
     }
 
     /**
@@ -110,9 +105,12 @@ class GameFragment : Fragment() {
      */
     private fun nextWord() {
         //Select and remove a word from the list
+        Timber.i("jj next Word")
         if (wordList.isEmpty()) {
             gameFinished()
+            Timber.i("jj finished")
         } else {
+            Timber.i("jj one more")
             word = wordList.removeAt(0)
         }
         updateWordText()
@@ -140,5 +138,13 @@ class GameFragment : Fragment() {
 
     private fun updateScoreText() {
         binding.scoreText.text = score.toString()
+    }
+
+    override fun onSaveInstanceState(outBundle: Bundle)
+    {
+        outBundle.putString("word", this.word)
+        outBundle.putInt("score", this.score)
+        outBundle.putStringArrayList("list", ArrayList<String>(wordList))
+        Timber.i("jj saved")
     }
 }
