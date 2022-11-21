@@ -16,19 +16,70 @@
 
 package com.example.android.guesstheword.screens.game
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
 import android.util.Log
 
 
 class GameViewModel : ViewModel()
 {
+    // The current word
+    var word = MutableLiveData<String>()
+
+    // The current score
+    var score = MutableLiveData<Int>()
+
+    // The list of words - the front of the list is the next word to guess
+    private lateinit var wordList: MutableList<String>
+
     init
     {
         Log.i("jj", "GameViewModel created!")
+        this.resetList()
+        this.nextWord()
+        this.score.value = 0
     }
 
     override fun onCleared()
     {
         super.onCleared()
         Log.i("jj", "GameViewModel destroyed!")
+    }
+
+    /**
+     * Resets the list of words and randomizes the order
+     */
+    private fun resetList() {
+        this.wordList = mutableListOf(
+                "queen",
+                "hospital",
+                "basketball",
+                "cat",
+                "change"
+        )
+        this.wordList.shuffle()
+    }
+
+    /**
+     * Moves to the next word in the list
+     */
+    private fun nextWord() {
+        //Select and remove a word from the list
+        if (this.wordList.isEmpty()) {
+            // gameFinished()
+        } else {
+            this.word.value = this.wordList.removeAt(0)
+        }
+    }
+
+    /** Methods for buttons presses **/
+
+    fun onSkip() {
+        this.score.value = this.score.value!! - 1
+        this.nextWord()
+    }
+
+    fun onCorrect() {
+        this.score.value = this.score.value!! + 1
+        this.nextWord()
     }
 }
