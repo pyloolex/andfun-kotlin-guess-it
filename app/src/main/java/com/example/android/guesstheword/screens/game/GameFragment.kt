@@ -28,7 +28,7 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
 import android.util.Log
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.Observer
-
+import android.widget.Toast
 
 
 /**
@@ -66,6 +66,16 @@ class GameFragment : Fragment() {
                     binding.wordText.text = newWord
             }
         )
+        this.viewModel.eventGameFinish.observe(
+            this.viewLifecycleOwner, Observer {
+                hasFinished ->
+                    if (hasFinished)
+                    {
+                        this.gameFinished()
+                        this.viewModel.onGameFinishComplete()
+                    }
+            }
+        )
 
         binding.correctButton.setOnClickListener {
             this.viewModel.onCorrect()
@@ -84,5 +94,6 @@ class GameFragment : Fragment() {
         val action = GameFragmentDirections.actionGameToScore(
             this.viewModel.score.value!!)
         findNavController(this).navigate(action)
+        //Toast.makeText(this.activity, "Game has finished", Toast.LENGTH_SHORT).show()
     }
 }
