@@ -19,10 +19,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import android.util.Log
+import android.os.CountDownTimer
 
 
 class GameViewModel : ViewModel()
 {
+    companion object
+    {
+        private const val DONE = 0L
+        private const val ONE_SECOND = 1000L
+        private const val COUNTDOWN_TIME = 7000L
+    }
+
+    private val timer : CountDownTimer
+
     // The current word
     private var _word = MutableLiveData<String>()
     val word : LiveData<String>
@@ -37,6 +47,10 @@ class GameViewModel : ViewModel()
     val eventGameFinish : LiveData<Boolean>
         get() = _eventGameFinish
 
+    private val _currentTime = MutableLiveData<Long>()
+    val currentTime : LiveData<Long>
+        get() = _currentTime
+
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
 
@@ -47,12 +61,33 @@ class GameViewModel : ViewModel()
         this.nextWord()
         this._score.value = 0
         this._eventGameFinish.value = false
+        this._currentTime.value = GameViewModel.COUNTDOWN_TIME
+
+        timer = object : CountDownTimer(GameViewModel.COUNTDOWN_TIME,
+                                        GameViewModel.ONE_SECOND)
+        {
+            override fun onTick(millisUntilFinished: Long)
+            {
+                this@GameViewModel._currentTime.value = (
+                    millisUntilFinished / GameViewModel.ONE_SECOND)
+                Log.i("jj current time", millisUntilFinished.toString())
+            }
+
+            override fun onFinish()
+            {
+                Log.i("jj", "finished")
+                this@GameViewModel._currentTime.value = GameViewModel.DONE
+                this@GameViewModel._eventGameFinish.value = true
+            }
+        }
+        timer.start()
     }
 
     override fun onCleared()
     {
         super.onCleared()
         Log.i("jj", "GameViewModel destroyed!")
+        this.timer.cancel()
     }
 
     /**
@@ -75,10 +110,9 @@ class GameViewModel : ViewModel()
     private fun nextWord() {
         //Select and remove a word from the list
         if (this.wordList.isEmpty()) {
-            this._eventGameFinish.value = true
-        } else {
-            this._word.value = this.wordList.removeAt(0)
+            this.resetList()
         }
+        this._word.value = this.wordList.removeAt(0)
     }
 
     /** Methods for buttons presses **/
