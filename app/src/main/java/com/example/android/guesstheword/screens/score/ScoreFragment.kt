@@ -17,6 +17,7 @@
 package com.example.android.guesstheword.screens.score
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,6 +65,7 @@ class ScoreFragment : Fragment() {
     }
 
     private fun onPlayAgain() {
+        Log.i("jj", "onPlayAgain")
         findNavController().navigate(ScoreFragmentDirections.actionRestart())
     }
 }
